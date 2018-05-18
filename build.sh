@@ -9,6 +9,7 @@ aws() {
 sudo apt-get install python2.7
 sudo apt-get install python-pip
 sudo pip install awscli
+aws configure
 }
 
 dockerSetup(){
@@ -23,22 +24,24 @@ dockerSetup(){
     DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"'
     sudo usermod -a -G docker ubuntu
 }
-awscliSetup(){
-    #install Python version 2.7 if it was not already installed during the JDK #prerequisite installation
-    sudo apt-get install python2.7
-    #install Pip package management for python
-    sudo apt-get install python-pip
-    #install AWS CLI
-    sudo pip install awscli
-}
 start(){
+    aws ecr get-login --no-include-email --region eu-west-2 | bash
     docker run -p 80:5000 428924800516.dkr.ecr.eu-west-2.amazonaws.com/babadee
+}
+
+elastic(){
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+    sudo apt-get install apt-transport-https
+    echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+    sudo apt-get update
+    sudo apt-get install elasticsearch
 }
 
 main(){
     java
     dockerSetup
     aws
+    elastic
     start
 }
 main
