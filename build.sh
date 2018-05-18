@@ -39,7 +39,6 @@ elastic(){
 main(){
     java
     dockerSetup
-    aws
     elastic
     start
 }
