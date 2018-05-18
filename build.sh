@@ -6,9 +6,10 @@ java(){
 }
 
 aws() {
-sudo apt-get install python-pip
-sudo pip install awscli
-aws configure
+    sudo apt-get install python2.7
+    sudo apt-get install python-pip
+    sudo pip install awscli
+    aws configure
 }
 
 dockerSetup(){
@@ -36,9 +37,39 @@ elastic(){
     sudo apt-get install elasticsearch
 }
 
+logstash() {
+    sudo apt-get install logstash
+    sudo bash -c 'cat > /etc/logstash/conf.d/10-syslog.conf <<EOF
+    
+
+input {
+  file {
+    type => "syslog"
+    path => [ "/var/log/messages", "/var/log/*.log" ]
+  }
+}
+output {
+  stdout { 
+    codec => rubydebug
+    }
+ 
+    elasticsearch {
+      hosts => "localhost" # Use the internal IP of your Elasticsearch server
+    }
+}'
+sudo service logstash restart
+sudo curl -XGET 'localhost:9200/_cat/indices?v&pretty'
+}
+kibana(){
+    sudo apt-get install kibana
+}
+
 main(){
     java
+    aws
     dockerSetup
-    start
+    elastic
+    logstash
+    kibana
 }
 main
